@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ubuntu-ssh-deploy
+  labels:
+    app: ubuntu-ssh-deploy
+spec:
+  dnsPolicy: ClusterFirst
+  dnsConfig:
+    nameservers:
+      - 8.8.8.8
+    searches:
+      - default.svc.cluster.local
+      - dsm.com
+    options:
+      - name: name01
+        value: value01
+      - name: name02
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ubuntu-ssh
+  template:
+    metadata:
+      labels:
+        app: ubuntu-ssh
+    spec:
+      hostname: ubuntu-ssh
+      subdomain: dsm
+      containers:
+      - name: ubuntu
+        image: vm.dsmentoring.com:5000/ubuntu-ssh:v4
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 22
+        securityContext:
+          privileged: true
+      imagePullSecrets:
+      - name: dsmreg
+      restartPolicy: Always

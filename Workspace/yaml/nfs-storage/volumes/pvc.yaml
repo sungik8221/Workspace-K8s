@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pvc
+  namespace: nfs-volume
+spec:
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: nfs-client
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany # NFS서버 이기 때문에 Many 사용

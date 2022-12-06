@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd
+  namespace: fluentd
+  labels:
+    app: fluentd
+spec:
+  selector:
+    matchLabels:
+      app: fluentd
+  template:
+    metadata:
+      labels:
+        app: fluentd
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      serviceAccount: fluentd
+      serviceAccountName: fluentd
+      containers:
+      - name: fluentd
+        image: fluent/fluentd-kubernetes-daemonset:v1.3-debian-elasticsearch
+        env:
+          - name:  FLUENT_ELASTICSEARCH_HOST
+            value: "elasticsearch.es.svc.cluster.local"
+#            value: "elasticsearch.default.svc.cluster.local"
+          - name:  FLUENT_ELASTICSEARCH_PORT
+            value: "9200"
+          - name: FLUENT_ELASTICSEARCH_SCHEME
+            value: "http"
+          - name: FLUENTD_SYSTEMD_CONF
+            value: "disable"
+          - name: FLUENT_UID
+            value: "0"
+          - name: FLUENTD_PROMETHEUS_CONF
+            value: "disable"
+          - name: FLUENT_ELASTICSEARCH_SED_DISABLE
+            value: "true"
+        resources:
+          limits:
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: nginx
+  labels:
+    app: nginx
+spec:
+  paused: False
+  minReadySeconds: 15
+  progressDeadlineSeconds: 30
+  strategy:
+    type: Recreate
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+      restartPolicy: Always

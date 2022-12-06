@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  creationTimestamp: "2022-12-05T05:20:08Z"
+  generation: 1
+  name: httpd-localhost
+  namespace: default
+  resourceVersion: "26554"
+  uid: 3d085cdf-6371-4803-a107-6956d5d5af12
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: sicho.httpd.me
+    http:
+      paths:
+      - backend:
+          service:
+            name: httpd-deploy
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+status:
+  loadBalancer: {}

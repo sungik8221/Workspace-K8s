@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: "2022-12-05T05:10:31Z"
+  generation: 1
+  labels:
+    app: httpd-deploy
+  name: httpd-deploy
+  namespace: sicho-ingress
+  resourceVersion: "25492"
+  uid: 1b216b63-97e8-46e3-8d7b-8eaee860dd2c
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: httpd-deploy
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: httpd-deploy
+    spec:
+      containers:
+      - image: httpd
+        imagePullPolicy: Always
+        name: httpd
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status: {}

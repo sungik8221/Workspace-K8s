@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ubuntu-ssh
+  labels:
+    run: ubuntu-ssh
+  name: ubuntu-ssh
+  namespace: default
+spec:
+  containers:
+  - name: ubuntu-ssh
+    image: vm.dsmentoring.com:5000/ubuntu-ssh:v4
+    imagePullPolicy: IfNotPresent
+    securityContext:
+      privileged: true
+    ports:
+    - containerPort: 22
+  imagePullSecrets:
+  - name: dsmreg
+  restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ubuntu-ssh-service
+  labels:
+    app: ubuntu-ssh-service
+spec:
+  type: NodePort
+  selector:
+    run: ubuntu-ssh
+  ports:
+  - protocol: TCP
+    port: 22
+    targetPort: 22
+    nodePort: 30000
+  externalIPs:
+    - 192.168.10.136

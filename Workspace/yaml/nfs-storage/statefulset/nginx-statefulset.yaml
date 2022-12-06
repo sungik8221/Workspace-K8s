@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    kubernetes.io/creator: sicho
+  namespace: nfs-storage
+  name: nfs-nginx
+spec:
+  selector:
+    matchLabels:
+      app: nfs-nginx
+  serviceName: nfs-nginx # 헤드레스 서비스를 지정한다.
+  replicas: 3 # by default is 1
+  template:
+    metadata:
+      labels:
+        app: nfs-nginx
+    spec:
+      #terminationGracePeriodSeconds: 10 # 강제 종료까지 대기하는 시간
+      containers:
+      - name: nginx
+        image: nginx:latest
+        volumeMounts:
+        - name: nfs-volume
+          mountPath: /usr/share/nginx/html
+        ports:
+        - containerPort: 80
+          name: web
+      volumes:
+      - name: nfs-volume
+        nfs:
+          server: 192.168.0.21 # NFS IP
+          path: "/volume2/nfsStorage"

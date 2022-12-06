@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nas-pvc-csi
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  selector:
+    matchLabels:
+      alicloud-pvname: nas-pv-csi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  labels:
+    alicloud-pvname: nas-pv-csi
+  name: nas-pv-csi
+spec:
+  accessModes:
+    - ReadWriteMany
+  capacity:
+    storage: 5Gi
+  csi:
+    driver: nasplugin.csi.alibabacloud.com
+    volumeAttributes:
+      options: noresvport,nolock
+      path: /csi
+      server: 192.168.0.21
+      vers: "3"
+    volumeHandle: nas-pv-csi
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-nas-csi
+  labels:
+    app: busybox
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: busybox
+  template:
+    metadata:
+      labels:
+        app: busybox
+      annotations:
+        storage.alibabacloud.com/enable_nas_passthrough: "true"
+    spec:
+      runtimeClassName: runv
+      containers:
+        - name: busybox
+#          image: registry.cn-hangzhou.aliyuncs.com/acs/busybox:v1.29.2
+          image: busybox:latest
+          command: 
+          - tail
+          - -f
+          - /dev/null
+          volumeMounts:
+            - name: nas-pvc
+              mountPath: "/data"
+      restartPolicy: Always
+      volumes:
+        - name: nas-pvc
+          persistentVolumeClaim:
+            claimName: nas-pvc-csi

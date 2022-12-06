@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv
+  namespace: nfs-volume
+spec:
+  capacity:
+    storage: 1Gi
+#  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany # NFS서버 이기 때문에 Many 사용
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    path: /volume2/nfsStorage
+    server: 192.168.0.21
